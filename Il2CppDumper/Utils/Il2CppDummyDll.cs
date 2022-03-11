@@ -24,6 +24,7 @@ namespace Il2CppDumper
             var assemblyName = new AssemblyNameDefinition("Il2CppDummyDll", new Version("3.7.1.6"));
             var assemblyDefinition = AssemblyDefinition.CreateAssembly(assemblyName, "Il2CppDummyDll.dll", ModuleKind.Dll);
             var stringTypeReference = assemblyDefinition.MainModule.TypeSystem.String;
+            var typeTypeReference = new TypeReference("System", "Type", assemblyDefinition.MainModule, assemblyDefinition.MainModule.TypeSystem.CoreLibrary);
             var attributeTypeReference = assemblyDefinition.MainModule.ImportReference(attributeType);
             var types = assemblyDefinition.MainModule.Types;
             var namespaceName = "Il2CppDummyDll";
@@ -52,6 +53,11 @@ namespace Il2CppDumper
             tokenAttribute.Fields.Add(new FieldDefinition("Token", FieldAttributes.Public, stringTypeReference));
             types.Add(tokenAttribute);
             CreateDefaultConstructor(tokenAttribute);
+            var typeInfoAddressAttribute = new TypeDefinition(namespaceName, "TypeInfoAddressAttribute", (TypeAttributes)0x100001, attributeTypeReference);
+            typeInfoAddressAttribute.Fields.Add(new FieldDefinition("RVA", FieldAttributes.Public, stringTypeReference));
+            typeInfoAddressAttribute.Fields.Add(new FieldDefinition("Type", FieldAttributes.Public, typeTypeReference));
+            types.Add(typeInfoAddressAttribute);
+            CreateDefaultConstructor(typeInfoAddressAttribute);
             return assemblyDefinition;
         }
 
