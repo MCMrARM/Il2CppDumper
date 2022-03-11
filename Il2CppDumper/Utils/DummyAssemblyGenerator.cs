@@ -724,7 +724,7 @@ namespace Il2CppDumper
             typeRef = GetTypeReference(typeRef, type);
             
             var customAttribute = new CustomAttribute(typeRef.Module.ImportReference(typeInfoAddressAttribute));
-            var atype = new CustomAttributeNamedArgument("Type", new CustomAttributeArgument(typeType, typeRef.Resolve()));
+            var atype = new CustomAttributeNamedArgument("Type", new CustomAttributeArgument(typeType, typeRef));
             var rva = new CustomAttributeNamedArgument("RVA", new CustomAttributeArgument(stringType, $"0x{il2Cpp.GetRVA(address):X}"));
             customAttribute.Fields.Add(atype);
             customAttribute.Fields.Add(rva);
