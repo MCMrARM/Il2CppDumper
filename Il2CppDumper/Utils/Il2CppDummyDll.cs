@@ -58,6 +58,11 @@ namespace Il2CppDumper
             typeInfoAddressAttribute.Fields.Add(new FieldDefinition("Type", FieldAttributes.Public, typeTypeReference));
             types.Add(typeInfoAddressAttribute);
             CreateDefaultConstructor(typeInfoAddressAttribute);
+            var il2CppTypeAddressAttribute = new TypeDefinition(namespaceName, "Il2CppTypeAddressAttribute", (TypeAttributes)0x100001, attributeTypeReference);
+            il2CppTypeAddressAttribute.Fields.Add(new FieldDefinition("RVA", FieldAttributes.Public, stringTypeReference));
+            il2CppTypeAddressAttribute.Fields.Add(new FieldDefinition("Type", FieldAttributes.Public, typeTypeReference));
+            types.Add(il2CppTypeAddressAttribute);
+            CreateDefaultConstructor(il2CppTypeAddressAttribute);
             return assemblyDefinition;
         }
 

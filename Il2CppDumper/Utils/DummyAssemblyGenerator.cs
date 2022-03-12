@@ -18,6 +18,7 @@ namespace Il2CppDumper
         private Dictionary<Il2CppGenericParameter, GenericParameter> genericParameterDic = new Dictionary<Il2CppGenericParameter, GenericParameter>();
         private MethodDefinition attributeAttribute;
         private MethodDefinition typeInfoAddressAttribute;
+        private MethodDefinition il2CppTypeAddressAttribute;
         private TypeReference stringType;
         private TypeReference typeType;
         private Dictionary<int, FieldDefinition> fieldDefinitionDic = new Dictionary<int, FieldDefinition>();
@@ -39,6 +40,7 @@ namespace Il2CppDumper
             var metadataOffsetAttribute = il2CppDummyDll.MainModule.Types.First(x => x.Name == "MetadataOffsetAttribute").Methods[0];
             var tokenAttribute = il2CppDummyDll.MainModule.Types.First(x => x.Name == "TokenAttribute").Methods[0];
             typeInfoAddressAttribute = il2CppDummyDll.MainModule.Types.First(x => x.Name == "TypeInfoAddressAttribute").Methods[0];
+            il2CppTypeAddressAttribute = il2CppDummyDll.MainModule.Types.First(x => x.Name == "Il2CppTypeAddressAttribute").Methods[0];
             stringType = il2CppDummyDll.MainModule.TypeSystem.String;
             typeType = new TypeReference("System", "Type", il2CppDummyDll.MainModule, il2CppDummyDll.MainModule.TypeSystem.CoreLibrary);
 
@@ -453,6 +455,10 @@ namespace Il2CppDumper
                 {
                     AddMetadataUsageTypeInfo(i.Value, il2Cpp.metadataUsages[i.Key]);
                 }
+                foreach (var i in metadata.metadataUsageDic[Il2CppMetadataUsage.kIl2CppMetadataUsageIl2CppType])
+                {
+                    AddMetadataUsageIl2CppType(i.Value, il2Cpp.metadataUsages[i.Key]);
+                }
             }
         }
 
@@ -724,6 +730,20 @@ namespace Il2CppDumper
             typeRef = GetTypeReference(typeRef, type);
             
             var customAttribute = new CustomAttribute(typeRef.Module.ImportReference(typeInfoAddressAttribute));
+            var atype = new CustomAttributeNamedArgument("Type", new CustomAttributeArgument(typeType, typeRef));
+            var rva = new CustomAttributeNamedArgument("RVA", new CustomAttributeArgument(stringType, $"0x{il2Cpp.GetRVA(address):X}"));
+            customAttribute.Fields.Add(atype);
+            customAttribute.Fields.Add(rva);
+            typeRef.Resolve().CustomAttributes.Add(customAttribute);
+        }
+        
+        private void AddMetadataUsageIl2CppType(uint index, ulong address)
+        {
+            var type = il2Cpp.types[index];
+            var typeRef = GetTypeReference(null, type);
+            typeRef = GetTypeReference(typeRef, type);
+            
+            var customAttribute = new CustomAttribute(typeRef.Module.ImportReference(il2CppTypeAddressAttribute));
             var atype = new CustomAttributeNamedArgument("Type", new CustomAttributeArgument(typeType, typeRef));
             var rva = new CustomAttributeNamedArgument("RVA", new CustomAttributeArgument(stringType, $"0x{il2Cpp.GetRVA(address):X}"));
             customAttribute.Fields.Add(atype);
